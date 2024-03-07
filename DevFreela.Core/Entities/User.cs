@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DevFreela.Core.Entities
 {
-    internal class User : BaseEntity
+    public class User : BaseEntity
     {
         public User(string name, string email, DateTime birthDate)
         {
