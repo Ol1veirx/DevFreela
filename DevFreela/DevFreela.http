@@ -1,0 +1,6 @@
+@DevFreela_HostAddress = http://localhost:5107
+
+GET {{DevFreela_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
