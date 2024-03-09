@@ -1,22 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
+using Dapper;
 using DevFreela.Application.InputModels;
 using DevFreela.Application.Services.Interfaces;
 using DevFreela.Application.ViewModels;
 using DevFreela.Core.Entities;
 using DevFreela.Infraestructure.Persistence;
+using Microsoft.Extensions.Configuration;
+using MySql.Data.MySqlClient;
 
 namespace DevFreela.Application.Services.Implemetations
 {
     public class ProjectService : IProjectService
     {
         private readonly DevFreelaDbContext _dbContext;
-        public ProjectService(DevFreelaDbContext dbContext) 
+        private readonly string _connectionString;
+        public ProjectService(DevFreelaDbContext dbContext, IConfiguration configuration) 
         {
             _dbContext = dbContext;
+            _connectionString = configuration.GetConnectionString("DevFreelaConnection");
         }
         public int Create(NewProjectInputModel inputModel)
         {
@@ -81,6 +87,16 @@ namespace DevFreela.Application.Services.Implemetations
             var project = _dbContext.Projects.SingleOrDefault(p => p.Id == id);
 
             project.Start();
+
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                var script = "UPDATE Projects SET Status = @satatus, StartdAt = @startedat WHERE Id = @id";
+
+                connection.Execute(script, new { status = project.Status, startAt = project.StartAt });
+                  
+            }
         }
 
         public void Update(UpdateProjectInputModel inputModel)
